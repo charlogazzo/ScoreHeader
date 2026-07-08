@@ -1,15 +1,19 @@
 import { Hono } from 'hono';
 import { context, redis, reddit } from '@devvit/web/server';
 import type {
-  DecrementResponse,
-  IncrementResponse,
   InitResponse,
+  SubmitScoreRequest,
+  SubmitScoreResponse,
 } from '../../shared/api';
 
 type ErrorResponse = {
   status: 'error';
   message: string;
 };
+
+function highScoreKey(username: string) {
+  return `highscore:${username}`;
+}
 
 export const api = new Hono();
 
@@ -28,16 +32,15 @@ api.get('/init', async (c) => {
   }
 
   try {
-    const [count, username] = await Promise.all([
-      redis.get('count'),
-      reddit.getCurrentUsername(),
-    ]);
+    const username = (await reddit.getCurrentUsername()) ?? 'anonymous';
+    const stored = await redis.get(highScoreKey(username));
+    const highScore = stored ? parseInt(stored, 10) : 0;
 
     return c.json<InitResponse>({
       type: 'init',
-      postId: postId,
-      count: count ? parseInt(count) : 0,
-      username: username ?? 'anonymous',
+      postId,
+      username,
+      highScore: Number.isFinite(highScore) ? highScore : 0,
     });
   } catch (error) {
     console.error(`API Init Error for post ${postId}:`, error);
@@ -52,42 +55,32 @@ api.get('/init', async (c) => {
   }
 });
 
-api.post('/increment', async (c) => {
+api.post('/submit-score', async (c) => {
   const { postId } = context;
   if (!postId) {
     return c.json<ErrorResponse>(
-      {
-        status: 'error',
-        message: 'postId is required',
-      },
+      { status: 'error', message: 'postId is required' },
       400
     );
   }
 
-  const count = await redis.incrBy('count', 1);
-  return c.json<IncrementResponse>({
-    count,
-    postId,
-    type: 'increment',
-  });
-});
+  const body = await c.req.json<SubmitScoreRequest>();
+  const score = Math.max(0, Math.round(body.score ?? 0));
+  const username = (await reddit.getCurrentUsername()) ?? 'anonymous';
+  const key = highScoreKey(username);
 
-api.post('/decrement', async (c) => {
-  const { postId } = context;
-  if (!postId) {
-    return c.json<ErrorResponse>(
-      {
-        status: 'error',
-        message: 'postId is required',
-      },
-      400
-    );
+  const stored = await redis.get(key);
+  const previous = stored ? parseInt(stored, 10) : 0;
+  const highScore = Math.max(previous, score);
+
+  if (highScore > previous) {
+    await redis.set(key, String(highScore));
   }
 
-  const count = await redis.incrBy('count', -1);
-  return c.json<DecrementResponse>({
-    count,
+  return c.json<SubmitScoreResponse>({
+    type: 'submit-score',
     postId,
-    type: 'decrement',
+    score,
+    highScore,
   });
 });

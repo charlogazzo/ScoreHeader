@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "<% name %>",
+  "name": "scoreheader",
   "post": {
     "dir": "dist/client",
     "entrypoints": {
@@ -21,7 +21,7 @@
     "items": [
       {
         "label": "Create a new post",
-        "description": "<% name %>",
+        "description": "Score Header — timing header game",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
@@ -44,5 +44,8 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
+  },
+  "dev": {
+    "subreddit": "scoreheader_dev"
   }
 }

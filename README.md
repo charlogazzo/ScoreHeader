@@ -1,27 +1,69 @@
-## Devvit React Starter
+# Score Header
 
-A starter to build web applications on Reddit's developer platform
+A Reddit Devvit timing game: crosses fly in from the wings, you time your header and aim the ball into the net.
 
-- [Devvit](https://developers.reddit.com/): A way to build and deploy immersive games on Reddit
-- [Vite](https://vite.dev/): For compiling the webView
-- [React](https://react.dev/): For UI
-- [Hono](https://hono.dev/): For backend logic
-- [Tailwind](https://tailwindcss.com/): For styles
-- [TypeScript](https://www.typescriptlang.org/): For type safety
+## How to play
 
-## Getting Started
+1. The ball crosses in from the **left** or **right** side of the goal.
+2. Pick an **aim direction** (left, center, or right) before the ball arrives.
+3. Tap **HEADER!** (or tap the pitch) when the ball reaches the player's head.
+4. Score points for precise timing and aiming the ball toward the goal.
+5. Play **5 rounds** per match. Your best score is saved per Reddit user.
 
-> Make sure you have Node 22 downloaded on your machine before running!
+### Scoring tips
 
-1. Run `npm create devvit@latest --template=react`
-2. Go through the installation wizard. You will need to create a Reddit account and connect it to Reddit developers
-3. Copy the command on the success page into your terminal
+- Ball from the **left** → aim **right** to redirect into the goal.
+- Ball from the **right** → aim **left**.
+- Perfect timing earns up to 100 timing points; wrong aim costs you the goal.
+
+## Setup
+
+Requires **Node.js 22+**.
+
+```bash
+nvm use 22          # or ensure Node 22+ is active
+npm install
+npm run login       # connect Reddit developer account
+```
+
+### First-time: register the app on Reddit
+
+This project was scaffolded locally, so you must link it to a Reddit Devvit app **once** before playtesting:
+
+```bash
+npx devvit init --force
+```
+
+1. The CLI prints a URL — open it in your browser (logged in as the same Reddit account as the CLI).
+2. Confirm or create the app named **score-header** on [developers.reddit.com](https://developers.reddit.com/new).
+3. When redirected back, the CLI finishes setup automatically.
+
+Then start playtest:
+
+```bash
+npm run dev
+```
+
+If `devvit init` says the app name is taken or owned by another account, either log in with the owning account (`npm run login`) or pick a different app name in the wizard (the CLI updates `devvit.json` for you).
 
 ## Commands
 
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run build`: Builds your client and server projects
-- `npm run deploy`: Uploads a new version of your app
-- `npm run launch`: Publishes your app for review
-- `npm run login`: Logs your CLI into Reddit
-- `npm run type-check`: Type checks, lints, and prettifies your app
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Devvit playtest |
+| `npm run build` | Build client and server |
+| `npm run deploy` | Upload a new version |
+| `npm run launch` | Deploy and publish for review |
+
+## Project structure
+
+```
+src/client/          # React UI + canvas game
+  components/        # HeaderGame
+  game/              # Engine + renderer
+  hooks/             # useHeaderGame (score API)
+src/server/          # Hono API (high scores via Redis)
+src/shared/          # Types and scoring logic
+```
+
+Built with [Devvit Web](https://developers.reddit.com/docs/capabilities/devvit-web/devvit_web_overview), React, Vite, and Tailwind CSS.

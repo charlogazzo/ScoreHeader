@@ -1,18 +1,17 @@
 export type InitResponse = {
   type: 'init';
   postId: string;
-  count: number;
   username: string;
+  highScore: number;
 };
 
-export type IncrementResponse = {
-  type: 'increment';
+export type SubmitScoreResponse = {
+  type: 'submit-score';
   postId: string;
-  count: number;
+  score: number;
+  highScore: number;
 };
 
-export type DecrementResponse = {
-  type: 'decrement';
-  postId: string;
-  count: number;
+export type SubmitScoreRequest = {
+  score: number;
 };
